@@ -188,23 +188,17 @@ impl<T: Read + Write + ?Sized> Firmata for Board<T> {
     }
     fn query_analog_mapping(&mut self) -> Result<()> {
         self.connection
-            .write_all(&[START_SYSEX, ANALOG_MAPPING_QUERY, END_SYSEX])?;
-
-        Ok(())
+            .write_all(&[START_SYSEX, ANALOG_MAPPING_QUERY, END_SYSEX])
     }
 
     fn query_capabilities(&mut self) -> Result<()> {
         self.connection
-            .write_all(&[START_SYSEX, CAPABILITY_QUERY, END_SYSEX])?;
-
-        Ok(())
+            .write_all(&[START_SYSEX, CAPABILITY_QUERY, END_SYSEX])
     }
 
     fn query_firmware(&mut self) -> Result<()> {
         self.connection
-            .write_all(&[START_SYSEX, REPORT_FIRMWARE, END_SYSEX])?;
-
-        Ok(())
+            .write_all(&[START_SYSEX, REPORT_FIRMWARE, END_SYSEX])
     }
 
     fn i2c_config(&mut self, delay: i32) -> Result<()> {
@@ -214,9 +208,7 @@ impl<T: Read + Write + ?Sized> Firmata for Board<T> {
             (delay & 0xFF) as u8,
             (delay >> 8 & 0xFF) as u8,
             END_SYSEX,
-        ])?;
-
-        Ok(())
+        ])
     }
 
     fn i2c_read(&mut self, address: i32, size: i32) -> Result<()> {
@@ -228,13 +220,11 @@ impl<T: Read + Write + ?Sized> Firmata for Board<T> {
             ((size as u8) & 0x7F),
             (((size) >> 7) & 0x7F) as u8,
             END_SYSEX,
-        ])?;
-
-        Ok(())
+        ])
     }
 
     fn i2c_write(&mut self, address: i32, data: &[u8]) -> Result<()> {
-        let mut buf = vec![];
+        let mut buf = Vec::with_capacity(4 + data.len() * 2 + 1);
 
         buf.push(START_SYSEX);
         buf.push(I2C_REQUEST);
@@ -248,23 +238,17 @@ impl<T: Read + Write + ?Sized> Firmata for Board<T> {
 
         buf.push(END_SYSEX);
 
-        self.connection.write_all(&buf[..])?;
-
-        Ok(())
+        self.connection.write_all(&buf)
     }
 
     fn report_digital(&mut self, pin: i32, state: i32) -> Result<()> {
         self.connection
-            .write_all(&[REPORT_DIGITAL | pin as u8, state as u8])?;
-
-        Ok(())
+            .write_all(&[REPORT_DIGITAL | pin as u8, state as u8])
     }
 
     fn report_analog(&mut self, pin: i32, state: i32) -> Result<()> {
         self.connection
-            .write_all(&[REPORT_ANALOG | pin as u8, state as u8])?;
-
-        Ok(())
+            .write_all(&[REPORT_ANALOG | pin as u8, state as u8])
     }
 
     fn analog_write(&mut self, pin: i32, level: i32) -> Result<()> {
@@ -274,9 +258,7 @@ impl<T: Read + Write + ?Sized> Firmata for Board<T> {
             ANALOG_MESSAGE | pin as u8,
             (level & 0x7f) as u8,
             ((level >> 7) & 0x7f) as u8,
-        ])?;
-
-        Ok(())
+        ])
     }
 
     fn digital_write(&mut self, pin: i32, level: i32) -> Result<()> {
@@ -297,9 +279,7 @@ impl<T: Read + Write + ?Sized> Firmata for Board<T> {
             DIGITAL_MESSAGE | port as u8,
             (value & 0x7f) as u8,
             ((value >> 7) & 0x7f) as u8,
-        ])?;
-
-        Ok(())
+        ])
     }
 
     fn string_write(&mut self, string: &str) -> Result<()> {
@@ -313,9 +293,7 @@ impl<T: Read + Write + ?Sized> Firmata for Board<T> {
     fn set_pin_mode(&mut self, pin: i32, mode: u8) -> Result<()> {
         self.pins[pin as usize].mode = mode;
         self.connection
-            .write_all(&[PIN_MODE, pin as u8, mode as u8])?;
-
-        Ok(())
+            .write_all(&[PIN_MODE, pin as u8, mode as u8])
     }
 
     fn read_and_decode(&mut self) -> Result<()> {
